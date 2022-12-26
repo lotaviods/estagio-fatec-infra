@@ -1,0 +1,8 @@
+http:
+  routers:
+    dashboard:
+      rule: Host(`traefik.fatec.estagio.com`) || Host(`traefik.fatec.estagio.com`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))
+      service: api@internal
+
+
+

@@ -1,0 +1,14 @@
+api:
+  insecure: true
+
+entryPoints:
+  default:
+    address: :80
+  db:
+    address: :3306
+
+providers:
+  docker:
+    exposedbydefault: false
+  file:
+    directory: "/var/traefik/config"

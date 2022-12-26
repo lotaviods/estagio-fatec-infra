@@ -1,0 +1,58 @@
+version: '3.5'
+
+networks:
+  infra-estagio-network:
+    name: infra-estagio-network
+
+services:
+### CoreDNS #############################################
+  fatec-coredns:
+    image: coredns/coredns
+    container_name: "lotaviods-coredns"
+    ports:
+      - "53:53/udp"
+      - "53:53/tcp"
+    volumes:
+      - "$PWD/coredns/Corefile:/Corefile"
+      - "$PWD/coredns/etc/:/coredns-config/"
+    networks:
+      - infra-estagio-network
+
+  ### Traefik #############################################
+  fatec-traefik:
+    image: "traefik:v2.5"
+    container_name: "fatec-traefik"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - $PWD/traefik/config:/var/traefik/config
+      - $PWD/traefik/certs:/var/traefik/certs
+      - $PWD/traefik/log:/var/traefik/log
+      - $PWD/traefik/traefik.yml:/etc/traefik/traefik.yml 
+    networks:
+      - infra-estagio-network
+    
+  fatec-db:
+    image: mysql:8.0-debian
+    container_name: "fatec-db"
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    ports:
+      - "${MYSQL_PORT}:3306"
+    env_file:
+      - .env
+    networks:
+      - infra-estagio-network
+    environment:
+      MYSQL_ROOT_PASSWORD: ${LINK_FATEC_DB_PASSWORD}
+    volumes:
+      - ${MYSQL_VOLUME_PATH_HOST}:/var/lib/mysql
+    labels:
+      - "traefik.tcp.routers.fatec-db.rule=HostSNI(`db.fatec.estagio.com`)"
+      - "traefik.tcp.routers.fatec-db.entrypoints=db"
+      - "traefik.tcp.services.fatec-db.loadbalancer.server.port=${MYSQL_PORT}"
+      - "traefik.docker.network=infra-estagio-network"
+      - "traefik.enable=true"
