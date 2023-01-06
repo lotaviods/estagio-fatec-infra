@@ -77,7 +77,7 @@ if [ $CONTAINERID ]; then
 fi
 
 case $OS in
-   Linux) sudo systemd-resolve --flush-caches;;
+   Linux) sudo resolvectl flush-caches;;
    Darwin)sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder ;;
 esac
 
