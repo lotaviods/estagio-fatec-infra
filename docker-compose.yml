@@ -13,8 +13,8 @@ services:
       - "53:53/udp"
       - "53:53/tcp"
     volumes:
-      - "$PWD/coredns/Corefile:/Corefile"
-      - "$PWD/coredns/etc/:/coredns-config/"
+      - "./coredns/Corefile:/Corefile"
+      - "./coredns/etc/:/coredns-config/"
     networks:
       - infra-estagio-network
 
@@ -28,10 +28,10 @@ services:
       - "8080:8080"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      - $PWD/traefik/config:/var/traefik/config
-      - $PWD/traefik/certs:/var/traefik/certs
-      - $PWD/traefik/log:/var/traefik/log
-      - $PWD/traefik/traefik.yml:/etc/traefik/traefik.yml 
+      - ./traefik/config:/var/traefik/config
+      - ./traefik/certs:/var/traefik/certs
+      - ./traefik/log:/var/traefik/log
+      - ./traefik/traefik.yml:/etc/traefik/traefik.yml 
     networks:
       - infra-estagio-network
     
