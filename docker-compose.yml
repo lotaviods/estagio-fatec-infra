@@ -4,6 +4,9 @@ networks:
   infra-estagio-network:
     name: infra-estagio-network
 
+volumes:
+  minio_storage: { }
+
 services:
 ### CoreDNS #############################################
   fatec-coredns:
@@ -71,3 +74,19 @@ services:
       XDEBUG_CONFIG: remote_host=host.docker.internal remote_port=${LINK_FATEC_XDEBUG_PORT}
     networks:
       - infra-estagio-network
+
+  minio:
+    container_name: "estagio-fatec-minio"
+    image: quay.io/minio/minio:RELEASE.2023-04-07T05-28-58Z.fips
+    volumes:
+      - minio_storage:/data
+    environment:
+      MINIO_ROOT_USER: "${LINK_FATEC_MINIO_ROOT_USER}"
+      MINIO_ROOT_PASSWORD: "${LINK_FATEC_MINIO_ROOT_PASSWORD}"
+      MINIO_HTTP_ENABLE: "true"
+    networks:
+      - infra-estagio-network
+    ports:
+      - "${LINK_FATEC_MINIO_PORT}:9000"
+      - "${LINK_FATEC_MINIO_PORT_CONSOLE}:${LINK_FATEC_MINIO_PORT_CONSOLE}"
+    command: server /data --console-address ":${LINK_FATEC_MINIO_PORT_CONSOLE}"
