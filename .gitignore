@@ -1,3 +1,4 @@
 .env
 coredns/etc/*
 coredns/Corefile
+var/*

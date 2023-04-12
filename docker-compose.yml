@@ -8,7 +8,7 @@ services:
 ### CoreDNS #############################################
   fatec-coredns:
     image: coredns/coredns
-    container_name: "lotaviods-coredns"
+    container_name: "estagio-fatec-coredns"
     ports:
       - "53:53/udp"
       - "53:53/tcp"
@@ -21,7 +21,7 @@ services:
   ### Traefik #############################################
   fatec-traefik:
     image: "traefik:v2.5"
-    container_name: "fatec-traefik"
+    container_name: "estagio-fatec-traefik"
     ports:
       - "80:80"
       - "443:443"
@@ -39,11 +39,11 @@ services:
     image: mysql:8.0-debian
     container_name: "fatec-db"
     command: --default-authentication-plugin=mysql_native_password
-    restart: always
     ports:
       - "${MYSQL_PORT}:3306"
     env_file:
       - .env
+    restart: on-failure
     networks:
       - infra-estagio-network
     environment:
@@ -56,3 +56,18 @@ services:
       - "traefik.tcp.services.fatec-db.loadbalancer.server.port=${MYSQL_PORT}"
       - "traefik.docker.network=infra-estagio-network"
       - "traefik.enable=true"
+
+  xdebug:
+    container_name: "estagio-fatec-xdebug"
+    build: 
+      context: .
+      dockerfile: xdebug/Dockerfile
+    ports:
+      - "${LINK_FATEC_XDEBUG_PORT}:9000"
+    volumes:
+      - .:/var/www/html
+    environment:
+      XDEBUG_MODE: "debug"
+      XDEBUG_CONFIG: remote_host=host.docker.internal remote_port=${LINK_FATEC_XDEBUG_PORT}
+    networks:
+      - infra-estagio-network
