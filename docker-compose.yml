@@ -37,7 +37,8 @@ services:
       - ./traefik/traefik.yml:/etc/traefik/traefik.yml 
     networks:
       - infra-estagio-network
-    
+
+  ### Database #############################################
   fatec-db:
     image: mysql:8.0-debian
     container_name: "fatec-db"
@@ -59,22 +60,8 @@ services:
       - "traefik.tcp.services.fatec-db.loadbalancer.server.port=${MYSQL_PORT}"
       - "traefik.docker.network=infra-estagio-network"
       - "traefik.enable=true"
-
-  xdebug:
-    container_name: "estagio-fatec-xdebug"
-    build: 
-      context: .
-      dockerfile: xdebug/Dockerfile
-    ports:
-      - "${LINK_FATEC_XDEBUG_PORT}:9000"
-    volumes:
-      - .:/var/www/html
-    environment:
-      XDEBUG_MODE: "debug"
-      XDEBUG_CONFIG: remote_host=host.docker.internal remote_port=${LINK_FATEC_XDEBUG_PORT}
-    networks:
-      - infra-estagio-network
-
+      
+  ### Minio S3 #############################################
   minio:
     container_name: "estagio-fatec-minio"
     image: quay.io/minio/minio:RELEASE.2023-04-07T05-28-58Z.fips
