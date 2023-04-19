@@ -3,6 +3,11 @@ version: '3.5'
 networks:
   infra-estagio-network:
     name: infra-estagio-network
+    driver: bridge
+    ipam:
+      driver: default
+      config: 
+        - subnet: 10.18.222.0/16
 
 volumes:
   minio_storage: { }
@@ -77,3 +82,21 @@ services:
       - "${LINK_FATEC_MINIO_PORT}:9000"
       - "${LINK_FATEC_MINIO_PORT_CONSOLE}:${LINK_FATEC_MINIO_PORT_CONSOLE}"
     command: server /data --console-address ":${LINK_FATEC_MINIO_PORT_CONSOLE}"
+
+  ### Rabbitmq #############################################
+  fatec-rabbitmq:
+    image: rabbitmq:3.8-management
+    container_name: "estagio-fatec-rabbitmq"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${LINK_FATEC_RABBIT_USER}
+      RABBITMQ_DEFAULT_PASS: ${LINK_FATEC_RABBIT_PASSWORD}
+    ports:
+      - "${LINK_FATEC_RABBIT_PORT}:5672"
+      - "${LINK_FATEC_RABBIT_WEB_PORT}:15672"
+    networks:
+      - infra-estagio-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.rabbitmq.rule=Host(`rabbitmq.fatec.estagio.com`)"
+      - "traefik.http.routers.rabbitmq.entrypoints=default"
+      - "traefik.http.services.rabbitmq.loadbalancer.server.port=15672"
